@@ -1,0 +1,82 @@
+//Vinny Nguyen
+//SDSU S3 Judge & Moderator Form 2024
+//1/16/2024
+
+/**
+ * After any change in the sheet, update the combobox options in the Forms
+ */
+function onChange(e) {
+  var spreadsheetId = "1bZtWFnysJQrIVtzXxEp6BVjzsuDu-e0EnOJmHxL71TM";
+
+  //   /* 
+  //   Uncomment this to display the item IDs
+  //   and pick the one that you want to modify
+  // */
+  // var items = form.getItems();
+  // for (i = 0; i < items.length; i++) {
+  //   Logger.log("ID: " + items[i].getId(), ': ' + items[i].getType());
+  // }
+
+  // Update the Judge form based on tab 3
+  var judgeData = getTabData(spreadsheetId, 2); // 3rd tab (index starts from 0)
+  var judgeFormId = '1evRq5L19AudJjA0F6bSJLPtd9ch1L8rthe4_7HpBxUE';
+  var judgeCheckboxItemId = [46326283]; // Replace with actual item ID
+  updateForm(judgeFormId, judgeCheckboxItemId, judgeData, "judge");
+
+  // Update the Moderator form based on tab 4
+  var moderatorData = getTabData(spreadsheetId, 3); // 4th tab
+  var moderatorFormId = '1dZuNq6pgSqomU-RiscKSu5yC122luVUnlBcHQn6QvW4';
+  var moderatorCheckboxItemId = [167578533]; // Replace with actual item ID
+  updateForm(moderatorFormId, moderatorCheckboxItemId, moderatorData, "moderator");
+
+}
+
+/**
+ * Get data from a specific tab of the spreadsheet
+ */
+function getTabData(spreadsheetId, tabIndex) {
+  var sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[tabIndex];
+  return sheet.getDataRange().getValues();
+}
+
+/**
+ * Filter data to get the options that have not reached the response limit
+ */
+function filterData(data) {
+  var comboValues = [];
+  for (var i = 1; i < data.length; i++) {
+    var optionValue = data[i][1];    // Option value from column B
+    var responseCount = data[i][2];  // Response count from column C
+    var responseLimit = data[i][3];  // Response limit from column D
+
+    if (responseCount < responseLimit) {
+      comboValues.push(optionValue);
+    }
+  }
+  return comboValues; // Removed the sort function to maintain original order
+}
+
+/**
+ * Update the Google Form with the filtered data or a custom message if no slots are available
+ */
+function updateForm(formId, checkboxItemId, data, formType) {
+  var comboValues = filterData(data);
+  var form = FormApp.openById(formId);
+  var checkboxItem = form.getItemById(checkboxItemId[0]).asCheckboxItem(); // Assuming checkboxItemId is an array with one ID
+
+  // Determine the custom message based on the form type
+  var customMessage = "";
+  if (comboValues.length === 0) {
+    if (formType === "moderator") {
+      customMessage = "All moderator slots have been filled. Please select this option to be put on a list of back up moderators (You will be notified if needed) or consider signing up to judge a session";
+    } else if (formType === "judge") {
+      customMessage = "All Judge slots have been filled. Please select this option to be put on a list of back up Judge";
+    }
+    checkboxItem.setChoices([
+      checkboxItem.createChoice(customMessage)
+    ]);
+  } else {
+    // If there are available slots, update the form with those options
+    checkboxItem.setChoiceValues(comboValues);
+  }
+}

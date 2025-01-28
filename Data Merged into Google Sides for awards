@@ -1,0 +1,125 @@
+function slideGenerator() {
+  // Use the Sheets API to load data, one record per row.
+  var dataRangeNotation = 'Sheet1!A2:G40';
+  var values = SpreadsheetApp.openById("1TrEWJTOZd3DXfEvfqYysE8dQG5GzYYZkdLIkxqYv31c").getRange(dataRangeNotation).getValues();
+
+  // Duplicate the template presentation using the Drive API.
+  var copyTitle = 'SRS 2019 Presentation';
+  var copyFile = {
+    title: copyTitle,
+    parents: [{id: 'root'}]
+  };
+  copyFile = Drive.Files.copy(copyFile,"1pzuT_9L8jO6eLRzUEmArDyaSBTmrTFlqLJniInlqRDo");
+  var presentationCopyId = copyFile.id;
+  
+  
+    //Duplicates slide
+      for (var j = 0; j < values.length; j++){
+        var slide = SlidesApp.openById(presentationCopyId).getSlides()[0];
+        slide.duplicate();
+      }
+  /*
+      var presentation = Slides.Presentations.get(presentationCopyId);
+      var slides = presentation.slides;
+      var objectId = new Array(values.length);
+      for (var k = 0; k < slides.length; k++) {
+        objectId[i] = slides[i].objectId;
+      }
+   */
+
+  
+  // For each record, fill in information on a slide
+  for (var i = 0; i < values.length; ++i) {
+    var row = values[i];
+    var award = row[0]; // award in column 1 
+    var firstName = row[1]; // first name in column 2
+    var lastName = row[2]; // last name in column 3
+    var title = row[3]; // presenatation title in column 4
+    var college = row[4]; // college in column 5
+    var mentorFirstName = row[5]; // mentor first name in column 6
+    var mentorLastName = row[6]; // mentor last name in column 7
+    
+    //var presentation = SlidesApp.openById(presentationCopyId).get
+    //presentation.selectAsCurrentPage();
+    
+    // Create the text merge (replaceAllText) requests for this presentation.
+    requests = [
+     /*  {
+      duplicateObject: {
+        objectId: g306a9fa029_0_6,
+        objectIds: {
+        g306a9fa029_0_6: copyslide1
+        }
+      }
+    },*/{
+      replaceAllText: {
+        containsText: {
+          text: '{{Award}}',
+          matchCase: true
+        },
+        replaceText: award
+      }
+    }, {
+      replaceAllText: {
+        containsText: {
+          text: '{{First Name}}',
+          matchCase: true
+        },
+        replaceText: firstName
+      }
+    }, {
+      replaceAllText: {
+        containsText: {
+          text: '{{Last Name}}',
+          matchCase: true
+        },
+        replaceText: lastName + ''
+      }
+    }, {
+      replaceAllText: {
+        containsText: {
+          text: '{{Title}}',
+          matchCase: true
+        },
+        replaceText: title + ''
+      }
+    }, {
+      replaceAllText: {
+        containsText: {
+          text: '{{Mentor FName}}',
+          matchCase: true
+        },
+        replaceText: mentorFirstName + ''
+      }
+    } , {
+      replaceAllText: {
+        containsText: {
+          text: '{{Mentor LName}}',
+          matchCase: true
+        },
+        replaceText: mentorLastName + ''
+      }
+    } , {
+      replaceAllText: {
+        containsText: {
+          text: '{{College}}',
+          matchCase: true
+        },
+        replaceText: college + ''
+      }
+    }];
+    
+    // Execute the requests for this presentation.
+    var result = Slides.Presentations.batchUpdate({
+      requests: requests
+    }, presentationCopyId);
+    // Count the total number of replacements made.
+    var numReplacements = 0;
+    result.replies.forEach(function(reply) {
+      numReplacements += reply.replaceAllText.occurrencesChanged;
+    });
+    console.log('Created presentation for %s with ID: %s', copyTitle, presentationCopyId);
+    console.log('Replaced %s text instances', numReplacements);
+  } //end for loop
+}
+

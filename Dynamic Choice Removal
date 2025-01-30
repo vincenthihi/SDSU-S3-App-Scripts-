@@ -1,0 +1,73 @@
+//Vinny Nguyen 
+//1-30-2025
+//INC0241313: Dynmaic removal
+
+function limitFormResponses() {
+
+  //Google Sheets ID
+  var spreadsheetId = "1aZ-ZhYKGJx0xIj82Gn2miQ1FaUr3tAedqYglPH3721s";
+  
+  // // Display item IDs for debugging
+  // var items = form.getItems();
+  // for (var i = 0; i < items.length; i++) {
+  //   Logger.log("ID: " + items[i].getId() + " | Type: " + items[i].getType());    
+  //   Logger.log("Item Title: " + items[i].getTitle());
+  //   Logger.log("======================");
+  // }
+
+  //Update Form based on tab 2
+  var groupData = getTabData(spreadsheetId, 1); // 2rd tab (index starts from 0)
+  var groupFormId = '1OKHFqy2PBY2X5Rz4Fs5gyI9zV_TKuYUdYnvb8r7TkFQ'; //Form ID
+  var groupItemId = [1860503632]; // Replace with actual item ID
+  updateForm(groupFormId, groupItemId, groupData, "group");
+
+/**
+ * Get data from a specific tab of the spreadsheet
+ */
+function getTabData(spreadsheetId, tabIndex) {
+  var sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[tabIndex];
+  return sheet.getDataRange().getValues();
+}
+
+/**
+ * Filter data to get the options that have not reached the response limit
+ */
+function filterData(data) {
+  var comboValues = [];
+  for (var i = 1; i < data.length; i++) {
+    var optionValue = data[i][0];    // Option value from column B
+    var responseCount = data[i][1];  // Response count from column C
+    var responseLimit = data[i][2];  // Response limit from column D
+
+    if (responseCount < responseLimit) {
+      comboValues.push(optionValue);
+    }
+  }
+  return comboValues; // Removed the sort function to maintain original order
+}
+
+/**
+ * Update the Google Form with the filtered data or a custom message if no slots are available
+ */
+function updateForm(formId, checkboxItemId, data, formType) {
+  var comboValues = filterData(data);
+  var form = FormApp.openById(formId);
+  var checkboxItem = form.getItemById(checkboxItemId[0]).asCheckboxItem(); // Assuming checkboxItemId is an array with one ID
+
+  // Determine the custom message based on the form type
+  var customMessage = "";
+  if (comboValues.length === 0) {
+    if (formType === "group") {
+      customMessage = "All group slots have been filled. Please email mfarnsworth@sdsu.edu";
+    } 
+    checkboxItem.setChoices([
+      checkboxItem.createChoice(customMessage)
+    ]);
+  } else {
+    // If there are available slots, update the form with those options
+    checkboxItem.setChoiceValues(comboValues);
+  }
+}
+
+}
+

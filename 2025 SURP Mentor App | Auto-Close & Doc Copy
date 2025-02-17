@@ -1,0 +1,94 @@
+// Vinny Nguyen
+// Due Date March 1
+// Auto-Close & Cell Copy to Doc
+// 2025 SURP Mentor Application
+
+// PART 1: Auto Close Function (Runs Independently)
+function closeFormAtScheduledTime() {
+  var form = FormApp.openById("1bnYN6OcJVCxFiYNCepp5SKJMvdJtgvW1DoHMbr-L2ZE");
+  var timeZone = "America/Los_Angeles";
+  
+  var targetTime = new Date(2025, 0, 31, 11, 33, 59); // 11:30:59 AM PST
+  var now = new Date();
+
+  for (var i = 0; i < 59; i++) {  
+    now = new Date(); 
+
+    if (Utilities.formatDate(now, timeZone, "yyyy-MM-dd HH:mm:ss") === 
+        Utilities.formatDate(targetTime, timeZone, "yyyy-MM-dd HH:mm:ss")) {
+      form.setAcceptingResponses(false);
+      form.setDescription("Form closed on March 27 11:59:59PM. No Further applications accepted.");
+      Logger.log("Form closed successfully at " + now);
+      break; // Use 'break' instead of 'return' so the script continues
+    }
+
+    Utilities.sleep(1000);
+  }
+
+  Logger.log("Form was still open after 59 seconds; no match found.");
+}
+
+
+// PART 2: Copy ALL responses, but only create new ones if they don’t already exist.
+function copyAllResponsesToDocs() {
+  var sheet = SpreadsheetApp.openById("1ixgn8eOYMHOa09XLUrpZD5iYceWHarWhCRLoYEvEElU").getSheetByName("Form Responses 1");
+  var data = sheet.getDataRange().getValues();
+  var folderId = "1AEQMolrsxW59u0KXHhvtYCJFNoihk9ms"; // Official Google Drive Folder
+  var folder = DriveApp.getFolderById(folderId);
+  var existingFiles = folder.getFiles();
+  
+  // Create a set of existing document names (to avoid duplicates)
+  var existingDocs = new Set();
+  while (existingFiles.hasNext()) {
+    var file = existingFiles.next();
+    existingDocs.add(file.getName()); 
+  }
+
+  // Loop through all responses, starting from the second row (skip headers)
+  for (var i = 1; i < data.length; i++) {
+    var timestamp = data[i][0]; // Timestamp from column A
+    var firstName = data[i][2]; // Column C: SDSU Mentor First Name
+    var lastName = data[i][3];  // Column D: SDSU Mentor Last Name
+    var fullName = firstName + " " + lastName; // Full Name
+
+    var docName = fullName; // Set doc title to full name
+
+    // Check if a document with this name already exists
+    if (existingDocs.has(docName)) {
+      Logger.log("Skipping duplicate: " + docName);
+      continue; // Skip if document already exists
+    }
+
+    // Create new document
+    var doc = DocumentApp.create(docName);
+    var docFile = DriveApp.getFileById(doc.getId());
+    folder.addFile(docFile); // Move to folder
+
+    var body = doc.getBody();
+
+    // Add formatted content
+    body.appendParagraph("2025 SDSU Undergraduate RSCA Program (SURP) - Mentor Project Application")
+         .setHeading(DocumentApp.ParagraphHeading.TITLE);
+    body.appendParagraph("Submitted on: " + timestamp).setHeading(DocumentApp.ParagraphHeading.HEADING1);
+    
+    // Loop through each question and answer
+    for (var j = 0; j < data[0].length; j++) {
+      var question = data[0][j]; // Header row (questions)
+      var answer = data[i][j];   // Response row (answers)
+
+      var questionPara = body.appendParagraph(question + ":");
+      questionPara.setHeading(DocumentApp.ParagraphHeading.HEADING2);
+
+      // Ensure the answer is a string before appending it
+      var answerText = answer !== null && answer !== undefined ? String(answer) : "N/A"; 
+
+      // Make answer text RED for visibility
+      var answerPara = body.appendParagraph(answerText);
+      answerPara.setForegroundColor("#FF0000"); // Red text color
+    }
+
+    doc.saveAndClose();
+    Logger.log("Google Doc Created: " + docName);
+  }
+}
+

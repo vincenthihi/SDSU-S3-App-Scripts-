@@ -1,0 +1,137 @@
+//Vincent Nguyen
+//S3 2025 Merge Slides
+
+function slideGenerator() {
+  var templatePresentation = SlidesApp.openById("1ulnbolRjlyzD_4qm6NiXL08CfFk-CoGhN_zY2W4HI6Y"), // 2025 Template File
+      spreadsheet = SpreadsheetApp.openById("1ZcwFYADpbcViCTA3Ys9ofzSMJmblWJK5N4-4K39sGj8"), // Google sheet file with data to be added
+      dataRangeNotation = '2025 Awards Data [Merge Format]!A2:O85', // Edit to inlcude all rows
+      values = spreadsheet.getRange(dataRangeNotation).getValues(),
+      destinationFolder = DriveApp.getFolderById('1ITsCMAcUnijVzHXO1Wtrsv-nebB7a_6Y');
+  
+  // Create a new presentation
+  srsPresentation = SlidesApp.create('S3 2025 Awards Presentation');
+  
+  // Remove the blank slide that comes with the new presentation
+  srsPresentation.getSlides().pop().remove();
+  
+  // Add title slide
+  var slide = templatePresentation.getSlides()[0];
+  srsPresentation.insertSlide(0, slide);
+  
+  // Loop over the rows in var values
+  // Each loop iteration copies the template slide from the master presentation and then replaces the text with the information from values[i]
+  for (var i = 0; i < values.length; ++i) {
+    
+    if (values[i][13] != "") {
+      // Copy template slide from master presentation
+      slide = templatePresentation.getSlides()[5];
+      srsPresentation.insertSlide(i+1, slide);   
+      
+      srsPresentation.replaceAllText('{{Award}}', values[i][0]);
+      srsPresentation.replaceAllText('{{First Name}}', values[i][1]);
+      srsPresentation.replaceAllText('{{Last Name}}', values[i][2]);
+      srsPresentation.replaceAllText('{{Title}}', values[i][3]);
+      srsPresentation.replaceAllText('{{College}}', values[i][4]);
+      srsPresentation.replaceAllText('{{Mentor FName}}', values[i][5]);
+      srsPresentation.replaceAllText('{{Mentor LName}}', values[i][6]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 First Name}}', values[i][7]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 Last Name}}', values[i][8]);  
+      srsPresentation.replaceAllText('{{Co-Presenter 2 First Name}}', values[i][9]);
+      srsPresentation.replaceAllText('{{Co-Presenter 2 Last Name}}', values[i][10]); 
+      srsPresentation.replaceAllText('{{Co-Presenter 3 First Name}}', values[i][11]);
+      srsPresentation.replaceAllText('{{Co-Presenter 3 Last Name}}', values[i][12]);
+      srsPresentation.replaceAllText('{{Co-Presenter 4 First Name}}', values[i][13]);
+      srsPresentation.replaceAllText('{{Co-Presenter 4 Last Name}}', values[i][14]); 
+    }
+    else if (values[i][11] != "") {
+      // Copy template slide from master presentation
+      slide = templatePresentation.getSlides()[4];
+      srsPresentation.insertSlide(i+1, slide);   
+      
+      srsPresentation.replaceAllText('{{Award}}', values[i][0]);
+      srsPresentation.replaceAllText('{{First Name}}', values[i][1]);
+      srsPresentation.replaceAllText('{{Last Name}}', values[i][2]);
+      srsPresentation.replaceAllText('{{Title}}', values[i][3]);
+      srsPresentation.replaceAllText('{{College}}', values[i][4]);
+      srsPresentation.replaceAllText('{{Mentor FName}}', values[i][5]);
+      srsPresentation.replaceAllText('{{Mentor LName}}', values[i][6]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 First Name}}', values[i][7]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 Last Name}}', values[i][8]);  
+      srsPresentation.replaceAllText('{{Co-Presenter 2 First Name}}', values[i][9]);
+      srsPresentation.replaceAllText('{{Co-Presenter 2 Last Name}}', values[i][10]); 
+      srsPresentation.replaceAllText('{{Co-Presenter 3 First Name}}', values[i][11]);
+      srsPresentation.replaceAllText('{{Co-Presenter 3 Last Name}}', values[i][12]); 
+    }
+    else if (values[i][9] != "") {
+      // Copy template slide from master presentation
+      slide = templatePresentation.getSlides()[3];
+      srsPresentation.insertSlide(i+1, slide);   
+      
+      srsPresentation.replaceAllText('{{Award}}', values[i][0]);
+      srsPresentation.replaceAllText('{{First Name}}', values[i][1]);
+      srsPresentation.replaceAllText('{{Last Name}}', values[i][2]);
+      srsPresentation.replaceAllText('{{Title}}', values[i][3]);
+      srsPresentation.replaceAllText('{{College}}', values[i][4]);
+      srsPresentation.replaceAllText('{{Mentor FName}}', values[i][5]);
+      srsPresentation.replaceAllText('{{Mentor LName}}', values[i][6]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 First Name}}', values[i][7]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 Last Name}}', values[i][8]);  
+      srsPresentation.replaceAllText('{{Co-Presenter 2 First Name}}', values[i][9]);
+      srsPresentation.replaceAllText('{{Co-Presenter 2 Last Name}}', values[i][10]); 
+    }
+    else if(values[i][7] != ""){
+      // Copy template slide from master presentation
+      slide = templatePresentation.getSlides()[2];
+      srsPresentation.insertSlide(i+1, slide);   
+      
+      // Replace placeholder text
+      srsPresentation.replaceAllText('{{Award}}', values[i][0]);
+      srsPresentation.replaceAllText('{{First Name}}', values[i][1]);
+      srsPresentation.replaceAllText('{{Last Name}}', values[i][2]);
+      srsPresentation.replaceAllText('{{Title}}', values[i][3]);
+      srsPresentation.replaceAllText('{{College}}', values[i][4]);
+      srsPresentation.replaceAllText('{{Mentor FName}}', values[i][5]);
+      srsPresentation.replaceAllText('{{Mentor LName}}', values[i][6]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 First Name}}', values[i][7]);
+      srsPresentation.replaceAllText('{{Co-Presenter 1 Last Name}}', values[i][8]);
+    }
+    else if (values[i][3] == "") { // Check if Title is empty
+    // Copy new template slide from master presentation
+    slide = templatePresentation.getSlides()[7]; // Assuming new template is at index 7
+    srsPresentation.insertSlide(i+1, slide);
+
+    // Replace placeholder text
+    srsPresentation.replaceAllText('{{Award}}', values[i][0]);
+    srsPresentation.replaceAllText('{{First Name}}', values[i][1]);
+    srsPresentation.replaceAllText('{{Last Name}}', values[i][2]);
+    srsPresentation.replaceAllText('{{College}}', values[i][4]); 
+    }
+    else {
+      // Copy template slide from master presentation
+      slide = templatePresentation.getSlides()[1];
+      srsPresentation.insertSlide(i+1, slide);
+      
+      // Replace placeholder text
+      srsPresentation.replaceAllText('{{Award}}', values[i][0]);
+      srsPresentation.replaceAllText('{{First Name}}', values[i][1]);
+      srsPresentation.replaceAllText('{{Last Name}}', values[i][2]);
+      srsPresentation.replaceAllText('{{Title}}', values[i][3]);
+      srsPresentation.replaceAllText('{{College}}', values[i][4]);
+      srsPresentation.replaceAllText('{{Mentor FName}}', values[i][5]);
+      srsPresentation.replaceAllText('{{Mentor LName}}', values[i][6]);
+    }
+  } //End for loop
+  
+  // Add final slide from template
+  slide = templatePresentation.getSlides()[8];
+  srsPresentation.insertSlide(values.length+1, slide)
+  
+  // Saves the current presentation. Causes pending updates to be flushed and applied.
+ srsPresentation.saveAndClose();
+ 
+ // Add the file to the destination folder
+ destinationFolder.addFile(DriveApp.getFileById(srsPresentation.getId()));
+ 
+ // Remove the file from parent folders
+ //DriveApp.getFileById(srsPresentation.getId()).getParents().next().removeFile(DriveApp.getFileById(srsPresentation.getId()));
+}
